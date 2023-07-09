@@ -19,6 +19,10 @@
     <modules>
         <module>demo-web</module>
         <module>demo-dal</module>
+        <module>demo-api</module>
+        <module>demo-common</module>
+        <module>demo-service</module>
+        <module>demo-remote</module>
     </modules>
 
     <repositories>
