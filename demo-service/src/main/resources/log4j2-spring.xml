@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <properties>
+        <property name="LOG_HOME">D:/学习/logs/log</property>
+        <property name="LOG_NAME">log.log</property>
+        <Property name="KAFKA_SERVERS">${ctx:log4j2.kafka.hosts}</Property>
+        <Property name="SERVICE_NAME">ServiceName</Property>
+        <Property name="PROJECT_NAME">demo-service</Property>
+        <Property name="KAFKA_LOG_ENABLED">${ctx:log4j2.kafka.enable}</Property>
+        <Property name="PROFILE">${ctx:profile}</Property>
+        <Property name="IP">${ctx:current.ip}</Property>
+        <property name="CONSOLE_LOG_PATTERN"
+                  value="[${PROJECT_NAME}] %highlight{%d{HH:mm:ss.SSS} [%traceId] [%10t] %-5p %logger{36}:%L - %msg%n}{FATAL=red, ERROR=red, WARN=yellow, INFO=cyan, DEBUG=cyan,TRACE=blue}"/>
+    </properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- 控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch） -->
+            <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!-- 输出日志的格式 -->
+            <PatternLayout pattern="${CONSOLE_LOG_PATTERN}"/>
+        </Console>
+        <!--<File name="file" filename="${LOG_NAME}">-->
+        <!--</File>-->
+        <!-- 这个会打印出所有的info及以下级别的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档-->
+        <RollingFile name="RollingFileInfo" fileName="${LOG_HOME}/${LOG_NAME}"
+                     filePattern="${LOG_HOME}/$${date:yyyy-MM}/info-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="${CONSOLE_LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <!-- DefaultRolloverStrategy属性如不设置，则默认为最多同一文件夹下7个文件，这里设置了20 -->
+            <DefaultRolloverStrategy max="20"/>
+            <filters>
+                <!--&lt;!&ndash;不包含&ndash;&gt;-->
+                <!--<ThresholdFilter level="warn" onMatch="DENY" onMismatch="NEUTRAL"/>-->
+                <!--包含-->
+                <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            </filters>
+        </RollingFile>
+
+    </Appenders>
+    <Loggers>
+        <root level="ALL">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="RollingFileInfo"/>
+        </root>
+        <!--过滤掉spring和mybatis的一些无用的DEBUG信息-->
+        <logger name="org.springframework" level="info" additivity="false">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="RollingFileInfo"/>
+        </logger>
+        <logger name="org.mybatis" level="info"></logger>
+        <logger name="com.baomidou.mybatisplus" level="info"></logger>
+
+    </Loggers>
+</Configuration>
